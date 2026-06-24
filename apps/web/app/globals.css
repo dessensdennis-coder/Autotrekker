@@ -1,0 +1,198 @@
+:root {
+  --bg: #0b0d10;
+  --panel: #15181c;
+  --panel-2: #1c2025;
+  --border: #2a2f36;
+  --text: #e8eaed;
+  --muted: #9aa3ad;
+  --green: #3ecf8e;
+  --red: #ef5f5f;
+  --yellow: #e0b341;
+  --accent: #cc2b3d;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+.page {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 24px 16px 64px;
+}
+
+.header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.header h1 {
+  font-size: 22px;
+  margin: 0;
+}
+
+.header .subtitle {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.trend-strip {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+.trend-pill {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  padding: 6px 12px;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.trend-up { color: var(--red); }
+.trend-down { color: var(--green); }
+.trend-stable { color: var(--muted); }
+
+.filters {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+.filters select,
+.filters button {
+  background: var(--panel);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 6px 10px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.filters button.active {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 12px;
+}
+
+.card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 14px;
+  position: relative;
+}
+
+.card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.card-title {
+  font-weight: 600;
+  font-size: 15px;
+}
+
+.card-sub {
+  color: var(--muted);
+  font-size: 12px;
+  margin-top: 2px;
+}
+
+.heart {
+  background: none;
+  border: none;
+  font-size: 20px;
+  cursor: pointer;
+  line-height: 1;
+  padding: 0;
+  color: var(--muted);
+}
+
+.heart.active {
+  color: var(--accent);
+}
+
+.badge {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 999px;
+  margin-top: 8px;
+  margin-right: 6px;
+}
+
+.badge-new {
+  background: rgba(62, 207, 142, 0.15);
+  color: var(--green);
+}
+
+.badge-koopje {
+  background: rgba(62, 207, 142, 0.15);
+  color: var(--green);
+}
+
+.badge-redelijk {
+  background: rgba(154, 163, 173, 0.15);
+  color: var(--muted);
+}
+
+.badge-duur {
+  background: rgba(239, 95, 95, 0.15);
+  color: var(--red);
+}
+
+.price-row {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.price {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.price-delta {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.meta-row {
+  margin-top: 8px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.empty {
+  color: var(--muted);
+  text-align: center;
+  padding: 48px 0;
+}
