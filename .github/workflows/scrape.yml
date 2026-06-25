@@ -23,6 +23,12 @@ jobs:
 
       - run: pnpm install --frozen-lockfile
 
-      - run: pnpm --filter @autotrekker/scraper run scrape
+      - name: Ensure database schema
+        run: pnpm db:migrate
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+      - name: Scrape Tesla inventory
+        run: pnpm --filter @autotrekker/scraper run scrape
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}

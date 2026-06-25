@@ -8,6 +8,7 @@
   "scripts": {
     "scrape": "pnpm --filter @autotrekker/scraper run scrape",
     "db:push": "pnpm --filter @autotrekker/db run push",
+    "db:migrate": "pnpm --filter @autotrekker/db run migrate",
     "dev": "pnpm --filter @autotrekker/web run dev",
     "build": "pnpm --filter @autotrekker/web run build"
   }
