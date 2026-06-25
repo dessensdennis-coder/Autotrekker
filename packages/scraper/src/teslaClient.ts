@@ -72,7 +72,15 @@ async function fetchPage(model: TeslaModelCode, offset: number): Promise<RawTesl
       "User-Agent":
         "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
       Accept: "application/json",
+      "Accept-Language": "nl-NL,nl;q=0.9,en-US;q=0.8,en;q=0.7",
       Referer: `https://www.tesla.com/${localeSlug}/inventory/used/m${model}`,
+      Origin: "https://www.tesla.com",
+      "sec-ch-ua": '"Chromium";v="124", "Google Chrome";v="124", "Not-A.Brand";v="99"',
+      "sec-ch-ua-mobile": "?0",
+      "sec-ch-ua-platform": '"Windows"',
+      "sec-fetch-dest": "empty",
+      "sec-fetch-mode": "cors",
+      "sec-fetch-site": "same-origin",
     },
   });
 
