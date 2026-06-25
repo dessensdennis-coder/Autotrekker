@@ -27,11 +27,15 @@ apps/web            Next.js dashboard (te hosten op Vercel)
 ## Belangrijk: waar de scrape draait
 
 Tesla's inventory-API geeft een **HTTP 403** terug voor datacenter-IP's
-(zoals die van GitHub Actions en de meeste cloud-servers). Vanaf een
-**gewone thuis-internetverbinding** werkt het wél. Daarom draait de scrape
-**lokaal** op je eigen computer; het dashboard en de database staan in de
-cloud. Een lege/geblokkeerde scrape wist je gegevens niet — de scraper
-weigert dan en laat de bestaande occasions staan.
+(zoals die van GitHub Actions en de meeste cloud-servers), én blokkeert
+inmiddels ook kale scripts die niet als een echte browser herkenbaar zijn.
+Daarom stuurt de scraper een **echte browser** aan (Chromium via Playwright):
+hij opent eerst de gewone inventory-pagina op tesla.com en haalt de gegevens
+dan op vanuit diezelfde browser, zodat het verkeer niet van een bot te
+onderscheiden is. Dat werkt vanaf een **gewone thuis-internetverbinding**.
+Daarom draait de scrape **lokaal** op je eigen computer; het dashboard en de
+database staan in de cloud. Een lege/geblokkeerde scrape wist je gegevens
+niet — de scraper weigert dan en laat de bestaande occasions staan.
 
 ## Eenmalige setup
 
@@ -47,12 +51,21 @@ Vereist [Node.js 20+](https://nodejs.org) en [pnpm](https://pnpm.io/installation
 ```bash
 git clone <deze-repo> && cd Autotrekker
 pnpm install
+pnpm exec playwright install chromium   # eenmalig: de browser die de scraper aanstuurt
 cp .env.example .env            # vul je Neon DATABASE_URL in
 pnpm db:migrate                 # eenmalig: maakt de tabellen aan
 pnpm scrape                     # haalt de occasions op en slaat ze op
 ```
 
 `pnpm scrape` leest `DATABASE_URL` automatisch uit `.env` in de projectmap.
+
+De scraper draait standaard "headless" (geen zichtbaar venster). Werkt een
+scrape onverhoopt niet en wil je meekijken wat de browser doet, draai dan
+eenmalig met een zichtbaar venster:
+
+```bash
+SCRAPER_HEADFUL=1 pnpm scrape     # Windows PowerShell: $env:SCRAPER_HEADFUL=1; pnpm scrape
+```
 
 ### 3. Automatisch laten draaien (elk uur, lokaal)
 
