@@ -1,9 +1,15 @@
 name: Scrape Tesla inventory
 
+# NOTE: Tesla's inventory API returns HTTP 403 for datacenter IPs (GitHub's
+# runners included), so scraping from the cloud collects nothing. The scrape
+# therefore runs LOCALLY from a residential IP (see README). This workflow is
+# kept for manual use only (e.g. to (re)create the DB schema, or if you later
+# route it through a residential proxy). The hourly schedule is intentionally
+# disabled.
 on:
-  schedule:
-    - cron: "0 * * * *" # every hour
   workflow_dispatch: {}
+  # schedule:
+  #   - cron: "0 * * * *"
 
 jobs:
   scrape:

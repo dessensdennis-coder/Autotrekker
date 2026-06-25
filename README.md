@@ -3,7 +3,7 @@
 Volgt Tesla occasions (NL, alle modellen) zodat je zelf niet meer op
 tesla.com/nl_nl/inventory hoeft te kijken:
 
-- elk uur een scrape van Tesla's used-inventory, opgeslagen in Postgres
+- periodieke scrape van Tesla's used-inventory, opgeslagen in Postgres
 - "NIEUW"-badge zodra een VIN voor het eerst gezien wordt
 - automatische delisting-detectie (auto verdwenen uit voorraad)
 - prijsoordeel **koopje / redelijk / duur** t.o.v. de mediaanprijs van
@@ -21,30 +21,52 @@ fragielere klus die we later kunnen oppakken.
 packages/db        Drizzle-schema + Postgres-client, gedeeld door scraper en web
 packages/scraper    Haalt Tesla-inventory op, slaat op, berekent prijzen/trend
 apps/web            Next.js dashboard (te hosten op Vercel)
-.github/workflows   Cron-job die de scraper elk uur draait
+.github/workflows   Handmatige workflow (schema-migratie; scrape alleen op verzoek)
 ```
 
-## Eenmalige setup (moet je zelf doen — eigen accounts)
+## Belangrijk: waar de scrape draait
+
+Tesla's inventory-API geeft een **HTTP 403** terug voor datacenter-IP's
+(zoals die van GitHub Actions en de meeste cloud-servers). Vanaf een
+**gewone thuis-internetverbinding** werkt het wél. Daarom draait de scrape
+**lokaal** op je eigen computer; het dashboard en de database staan in de
+cloud. Een lege/geblokkeerde scrape wist je gegevens niet — de scraper
+weigert dan en laat de bestaande occasions staan.
+
+## Eenmalige setup
 
 ### 1. Database (Neon, gratis tier)
 
 1. Ga naar https://neon.tech, maak een gratis project.
 2. Kopieer de connection string (inclusief `?sslmode=require`).
 
-### 2. GitHub secret voor de cron-job
+### 2. Lokaal de scrape draaien (op je eigen computer)
 
-In de GitHub-repo: **Settings → Secrets and variables → Actions → New repository secret**
+Vereist [Node.js 20+](https://nodejs.org) en [pnpm](https://pnpm.io/installation).
 
-- Naam: `DATABASE_URL`
-- Waarde: de connection string uit stap 1
+```bash
+git clone <deze-repo> && cd Autotrekker
+pnpm install
+cp .env.example .env            # vul je Neon DATABASE_URL in
+pnpm db:migrate                 # eenmalig: maakt de tabellen aan
+pnpm scrape                     # haalt de occasions op en slaat ze op
+```
 
-De workflow `.github/workflows/scrape.yml` draait daarna elk uur automatisch
-(en is ook handmatig te starten via Actions → "Scrape Tesla inventory" →
-"Run workflow"). De **tabellen worden bij de eerste run automatisch
-aangemaakt** (de workflow draait `db:migrate` vóór de scrape) — je hoeft
-dus zelf geen schema te pushen.
+`pnpm scrape` leest `DATABASE_URL` automatisch uit `.env` in de projectmap.
 
-### 3. Dashboard op Vercel
+### 3. Automatisch laten draaien (elk uur, lokaal)
+
+**macOS / Linux** — voeg een cron-regel toe met `crontab -e`:
+
+```cron
+0 * * * * cd /pad/naar/Autotrekker && /usr/local/bin/pnpm scrape >> scrape.log 2>&1
+```
+
+**Windows** — Taakplanner (Task Scheduler): maak een dagelijkse/uurlijkse taak
+die `pnpm scrape` uitvoert in de projectmap. Je computer moet aan staan op
+de momenten dat de taak draait.
+
+### 4. Dashboard op Vercel
 
 1. Importeer deze repo op https://vercel.com/new.
 2. Zet **Root Directory** op `apps/web` (Vercel detecteert de pnpm-workspace
@@ -52,17 +74,14 @@ dus zelf geen schema te pushen.
 3. Zet de environment variable `DATABASE_URL` op dezelfde connection string.
 4. Deploy.
 
-Na de eerste paar scrape-runs (geef het een paar uur, dan heb je ook een
-trendlijn) vul je het dashboard met actuele occasions.
+Het dashboard leest dezelfde database, dus zodra je lokaal scrapet zie je
+de occasions verschijnen. De trendlijn per model heeft een paar dagen data
+nodig voordat 'ie iets toont.
 
-## Lokaal draaien
+## Lokaal het dashboard bekijken
 
 ```bash
-pnpm install
-cp .env.example .env.local   # vul DATABASE_URL in
-pnpm db:push                 # eenmalig, of na schema-wijzigingen
-pnpm scrape                  # handmatig een scrape-run
-pnpm dev                     # dashboard op http://localhost:3000
+pnpm dev   # dashboard op http://localhost:3000
 ```
 
 ## Prijsformule

@@ -99,15 +99,22 @@ export async function fetchUsedInventory(model: TeslaModelCode): Promise<RawTesl
   return all;
 }
 
-export async function fetchAllUsedInventory(): Promise<RawTeslaResult[]> {
-  const all: RawTeslaResult[] = [];
+export interface InventoryEntry {
+  model: TeslaModelCode;
+  raw: RawTeslaResult;
+}
+
+export async function fetchAllUsedInventory(): Promise<{ entries: InventoryEntry[]; errors: number }> {
+  const entries: InventoryEntry[] = [];
+  let errors = 0;
   for (const model of TESLA_MODELS) {
     try {
       const results = await fetchUsedInventory(model);
-      all.push(...results);
+      for (const raw of results) entries.push({ model, raw });
     } catch (err) {
+      errors++;
       console.error(`Failed to fetch model ${model}:`, err);
     }
   }
-  return all;
+  return { entries, errors };
 }
