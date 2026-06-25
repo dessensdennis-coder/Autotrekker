@@ -1,3 +1,4 @@
+import { fileURLToPath } from "node:url";
 import { eq, inArray, sql } from "drizzle-orm";
 import { getDb, loadEnvFile, cars, priceHistory, modelPriceDaily, scrapeRuns } from "@autotrekker/db";
 import { fetchAllUsedInventory, type InventoryEntry } from "./teslaClient";
@@ -175,7 +176,7 @@ async function main() {
 }
 
 // Only run automatically when executed directly (not when imported by tests).
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (fileURLToPath(import.meta.url) === process.argv[1]) {
   main()
     .then(() => process.exit(0))
     .catch((err) => {
