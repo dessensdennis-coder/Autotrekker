@@ -31,26 +31,20 @@ apps/web            Next.js dashboard (te hosten op Vercel)
 1. Ga naar https://neon.tech, maak een gratis project.
 2. Kopieer de connection string (inclusief `?sslmode=require`).
 
-### 2. Schema naar de database pushen
-
-```bash
-pnpm install
-DATABASE_URL="<jouw-connection-string>" pnpm db:push
-```
-
-Dit maakt de tabellen (`cars`, `price_history`, `model_price_daily`, `scrape_runs`) aan.
-
-### 3. GitHub secret voor de cron-job
+### 2. GitHub secret voor de cron-job
 
 In de GitHub-repo: **Settings → Secrets and variables → Actions → New repository secret**
 
 - Naam: `DATABASE_URL`
-- Waarde: dezelfde connection string
+- Waarde: de connection string uit stap 1
 
 De workflow `.github/workflows/scrape.yml` draait daarna elk uur automatisch
-(en is ook handmatig te starten via "Run workflow" in de Actions-tab).
+(en is ook handmatig te starten via Actions → "Scrape Tesla inventory" →
+"Run workflow"). De **tabellen worden bij de eerste run automatisch
+aangemaakt** (de workflow draait `db:migrate` vóór de scrape) — je hoeft
+dus zelf geen schema te pushen.
 
-### 4. Dashboard op Vercel
+### 3. Dashboard op Vercel
 
 1. Importeer deze repo op https://vercel.com/new.
 2. Zet **Root Directory** op `apps/web` (Vercel detecteert de pnpm-workspace
