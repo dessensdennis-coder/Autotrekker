@@ -96,20 +96,37 @@ const Models = (() => {
     return c;
   }
 
-  // Laadt een bestand/blob, past EXIF-rotatie toe en schaalt naar maxW.
-  // Dit is dé manier om een geüploade foto in te lezen (telefoons zetten vaak
-  // een rotatievlag op de foto in plaats van de pixels echt te draaien).
-  async function fileToCanvas(file, maxW) {
-    const buf = await file.arrayBuffer();
-    const o = readOrientation(buf);
-    const img = await new Promise((res, rej) => {
+  function loadImageEl(file) {
+    return new Promise((res, rej) => {
       const im = new Image();
       im.onload = () => res(im);
       im.onerror = rej;
       im.src = URL.createObjectURL(file);
     });
-    const oriented = o === 1 ? img : orientCanvas(img, o);
-    return toCanvas(oriented, maxW);
+  }
+
+  // Laadt een bestand/blob, past EXIF-rotatie toe en schaalt naar maxW.
+  //
+  // Belangrijk: sommige browsers (o.a. Chrome op Android) draaien een foto bij
+  // het inladen zélf al recht volgens de EXIF-vlag. Als wíj daar dan nóg eens
+  // overheen draaien, staat het beeld scheef/ondersteboven en mislukt de
+  // naam-herkenning. Daarom vragen we met createImageBitmap({imageOrientation:
+  // 'none'}) expliciet de RUWE pixels op, zodat onze eigen rotatie de enige is
+  // en het resultaat op elk toestel hetzelfde is.
+  async function fileToCanvas(file, maxW) {
+    const buf = await file.arrayBuffer();
+    const o = readOrientation(buf);
+    if (typeof createImageBitmap === 'function') {
+      try {
+        const bmp = await createImageBitmap(file, { imageOrientation: 'none' });
+        const oriented = o === 1 ? bmp : orientCanvas(bmp, o);
+        return toCanvas(oriented, maxW);
+      } catch (e) { /* val terug op <img> hieronder */ }
+    }
+    // Fallback voor oude browsers zonder die optie: laat de browser de EXIF
+    // zelf doen en roteer NIET nog eens (voorkomt dubbele rotatie).
+    const img = await loadImageEl(file);
+    return toCanvas(img, maxW);
   }
 
   // Tekent een bron (img/canvas/video) op een canvas met een maximale breedte,
