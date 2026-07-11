@@ -107,6 +107,8 @@ h1,h2,h3{font-family:Georgia,"Times New Roman",serif;letter-spacing:.2px}
 .btn-ghost{background:transparent;color:var(--rust);border:2px solid transparent}
 .btn-ghost:hover{background:rgba(31,47,82,.08)}
 .btn-tiny{padding:.45em .9em;font-size:.82rem}
+.btn-soft{background:var(--paper);color:var(--rust);border:1.5px solid var(--line)}
+.btn-soft:hover{background:#fff}
 .btn-danger-ghost{background:transparent;color:#a33;border:1.5px solid #d9b3ab}
 .actions{display:flex;flex-direction:column;align-items:center;gap:10px;margin:18px 0}
 
@@ -177,6 +179,10 @@ h1,h2,h3{font-family:Georgia,"Times New Roman",serif;letter-spacing:.2px}
   padding:8px;font-size:.95rem;font-family:inherit;color:var(--ink);background:#fff}
 .review-card .rc-foot{display:flex;align-items:center;justify-content:space-between;font-size:.8rem}
 .review-card label.inc{display:flex;align-items:center;gap:5px;color:#56617a;cursor:pointer}
+
+/* backup */
+.backup-bar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:6px 0 12px}
+.backup-hint{font-size:.78rem;color:#7a8398;flex:1;min-width:150px}
 
 /* roster */
 .roster{margin-top:26px}
