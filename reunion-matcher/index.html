@@ -40,17 +40,11 @@
         <p>Head to <b>Set&nbsp;up</b> and load your yearbook pages first.</p>
       </div>
 
-      <div id="reunion-camera" class="camera-wrap hidden">
-        <video id="video" playsinline muted></video>
-        <div class="camera-overlay"><div class="face-guide"></div></div>
-      </div>
-
-      <canvas id="capture-canvas" class="hidden"></canvas>
-
       <div id="reunion-actions" class="actions hidden">
-        <button class="btn btn-primary btn-xl" id="btn-shoot">📸 Take photo</button>
-        <label class="btn btn-ghost" for="reunion-file">or pick from your photos</label>
-        <input type="file" id="reunion-file" accept="image/*" capture="environment" hidden />
+        <label class="btn btn-primary btn-xl" for="reunion-camera-file">📸 Take photo</label>
+        <input type="file" id="reunion-camera-file" accept="image/*" capture="environment" hidden />
+        <label class="btn btn-ghost" for="reunion-file">or choose from your photos</label>
+        <input type="file" id="reunion-file" accept="image/*" hidden />
       </div>
 
       <div id="reunion-result" class="result hidden"></div>
