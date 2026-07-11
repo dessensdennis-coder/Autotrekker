@@ -1,0 +1,37 @@
+name: Reünie-app op GitHub Pages
+
+# Publiceert de map reunion-matcher/ als statische site op GitHub Pages.
+# Eenmalig instellen: repo Settings -> Pages -> Source: "GitHub Actions".
+
+on:
+  push:
+    branches:
+      - claude/reunion-photo-matcher-app-w7fe4m
+    paths:
+      - 'reunion-matcher/**'
+      - '.github/workflows/reunion-pages.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: reunion-matcher
+      - id: deployment
+        uses: actions/deploy-pages@v4
