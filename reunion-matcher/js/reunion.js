@@ -51,15 +51,15 @@ const Reunion = (() => {
     return Math.max(30, Math.min(99, Math.round(100 - (dist - 0.35) * 85)));
   }
   function vibe(dist) {
-    if (dist < 0.5) return '🔥 Sterke gelijkenis!';
-    if (dist < 0.65) return '😃 Zou zomaar kunnen';
-    if (dist < 0.8) return '🤔 Misschien…';
-    return '🎲 Wilde gok';
+    if (dist < 0.5) return '🔥 Strong match!';
+    if (dist < 0.65) return '😃 Could well be';
+    if (dist < 0.8) return '🤔 Maybe…';
+    return '🎲 Wild guess';
   }
 
   async function matchFrom(source) {
     resetResult();
-    showBusy('Gezicht bekijken…');
+    showBusy('Looking at the face…');
     await Models.load(showBusy);
     const det = await faceapi
       .detectSingleFace(Models.toCanvas(source, DET_W), Models.detectorOpts())
@@ -68,7 +68,7 @@ const Reunion = (() => {
     hideBusy();
 
     if (!det) {
-      renderMessage('🙈 Geen gezicht herkend. Probeer het recht van voren en met wat meer licht.');
+      renderMessage('🙈 No face detected. Try head-on and with a bit more light.');
       els.again.classList.remove('hidden');
       return;
     }
@@ -94,8 +94,8 @@ const Reunion = (() => {
     els.result.innerHTML = '';
     const captured = faceThumbFromSource(source, box);
     const head = document.createElement('div');
-    head.innerHTML = `<img class="captured-face" src="${captured}" alt="jouw foto">
-      <p class="result-caption">Meest waarschijnlijk uit het jaarboek:</p>`;
+    head.innerHTML = `<img class="captured-face" src="${captured}" alt="your photo">
+      <p class="result-caption">Most likely from the yearbook:</p>`;
     els.result.appendChild(head);
 
     top.forEach((m, i) => {
@@ -108,7 +108,7 @@ const Reunion = (() => {
         <img class="match-thumb" src="${m.person.thumb}" alt="${esc(m.person.name)}">
         <div class="match-body">
           <div class="match-name">${esc(m.person.name)}</div>
-          <div class="match-vibe">${i === 0 ? vibe(m.dist) : 'ook mogelijk'}</div>
+          <div class="match-vibe">${i === 0 ? vibe(m.dist) : 'also possible'}</div>
           <div class="match-meter"><i style="width:0"></i></div>
         </div>
         <div class="match-pct">${pct}%</div>`;
@@ -130,7 +130,7 @@ const Reunion = (() => {
   /* ---------- capture ---------- */
   function shoot() {
     const v = els.video;
-    if (!v.videoWidth) { alert('Camera is nog niet klaar.'); return; }
+    if (!v.videoWidth) { alert("Camera isn't ready yet."); return; }
     const c = els.canvas;
     c.width = v.videoWidth; c.height = v.videoHeight;
     c.getContext('2d').drawImage(v, 0, 0);
@@ -138,7 +138,7 @@ const Reunion = (() => {
     els.camera.classList.add('hidden');
     els.actions.classList.add('hidden');
     els.canvas.classList.remove('hidden');
-    matchFrom(c).catch(err => { console.error(err); hideBusy(); renderMessage('Er ging iets mis.'); });
+    matchFrom(c).catch(err => { console.error(err); hideBusy(); renderMessage('Something went wrong.'); });
   }
 
   async function fromFile(file) {
@@ -147,7 +147,7 @@ const Reunion = (() => {
     els.actions.classList.add('hidden');
     // EXIF-correct inlezen; matchFrom werkt met een canvas net zo goed als met een img
     const work = await Models.fileToCanvas(file, DET_W);
-    matchFrom(work).catch(err => { console.error(err); hideBusy(); renderMessage('Er ging iets mis.'); });
+    matchFrom(work).catch(err => { console.error(err); hideBusy(); renderMessage('Something went wrong.'); });
   }
 
   function again() {

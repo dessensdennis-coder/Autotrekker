@@ -11,7 +11,7 @@ const Setup = (() => {
   /* ---------- Tesseract ---------- */
   async function getWorker(onStatus) {
     if (_worker) return _worker;
-    onStatus && onStatus('Tekstherkenning laden…');
+    onStatus && onStatus('Loading text recognition…');
     _worker = await Tesseract.createWorker('eng', 1, {
       workerPath: 'vendor/tesseract-worker.min.js',
       corePath: 'vendor/tesseract-core',
@@ -124,11 +124,11 @@ const Setup = (() => {
 
   /* ---------- hoofdverwerking ---------- */
   async function processImage(file) {
-    showProgress('Afbeelding laden…');
+    showProgress('Loading image…');
     const work = await Models.fileToCanvas(file, MAX_W);
 
     await Models.load(showProgress);
-    showProgress('Gezichten zoeken…');
+    showProgress('Finding faces…');
     let dets = await faceapi
       .detectAllFaces(work, Models.detectorOpts())
       .withFaceLandmarks()
@@ -136,13 +136,13 @@ const Setup = (() => {
 
     if (!dets.length) {
       hideProgress();
-      alert('Geen gezichten gevonden op deze afbeelding. Probeer een scherpere of rechtere foto van de pagina.');
+      alert('No faces found in this image. Try a sharper or straighter photo of the page.');
       return;
     }
     dets = readingOrder(dets);
 
     const worker = await getWorker(showProgress);
-    showProgress(`Namen lezen (${dets.length} gezichten)…`);
+    showProgress(`Reading names (${dets.length} faces)…`);
     let words = [];
     try {
       const { data } = await worker.recognize(work, {}, { blocks: true, text: false });
@@ -172,10 +172,10 @@ const Setup = (() => {
       const card = document.createElement('div');
       card.className = 'review-card' + (p.include ? '' : ' off');
       card.innerHTML = `
-        <img src="${p.thumb}" alt="gezicht ${i + 1}">
-        <input type="text" value="${escapeHtml(p.name)}" placeholder="Naam…" data-i="${i}">
+        <img src="${p.thumb}" alt="face ${i + 1}">
+        <input type="text" value="${escapeHtml(p.name)}" placeholder="Name…" data-i="${i}">
         <div class="rc-foot">
-          <label class="inc"><input type="checkbox" ${p.include ? 'checked' : ''} data-inc="${i}"> meenemen</label>
+          <label class="inc"><input type="checkbox" ${p.include ? 'checked' : ''} data-inc="${i}"> include</label>
         </div>`;
       els.grid.appendChild(card);
     });
@@ -192,7 +192,7 @@ const Setup = (() => {
 
   async function saveReview() {
     const keep = pending.filter(p => p.include && p.name.trim());
-    if (!keep.length) { alert('Vul minstens één naam in om op te slaan.'); return; }
+    if (!keep.length) { alert('Enter at least one name to save.'); return; }
     await Store.addMany(keep.map(p => ({
       name: p.name.trim(), thumb: p.thumb, descriptor: p.descriptor,
     })));
@@ -201,7 +201,7 @@ const Setup = (() => {
     els.file.value = '';
     await refreshRoster();
     App.refreshCount();
-    alert(`${keep.length} klasgenoot/klasgenoten toegevoegd! 🎉`);
+    alert(`Added ${keep.length} classmate${keep.length===1?'':'s'}! 🎉`);
   }
 
   /* ---------- roster ---------- */
@@ -255,16 +255,16 @@ const Setup = (() => {
 
     els.file.addEventListener('change', e => {
       if (e.target.files[0]) processImage(e.target.files[0]).catch(err => {
-        console.error(err); hideProgress(); alert('Er ging iets mis bij het verwerken.');
+        console.error(err); hideProgress(); alert('Something went wrong while processing.');
       });
     });
     document.getElementById('btn-save-people').addEventListener('click', () =>
-      saveReview().catch(err => { console.error(err); alert('Opslaan mislukt.'); }));
+      saveReview().catch(err => { console.error(err); alert('Saving failed.'); }));
     document.getElementById('btn-cancel-review').addEventListener('click', () => {
       pending = []; els.review.classList.add('hidden'); els.file.value = '';
     });
     els.clearBtn.addEventListener('click', async () => {
-      if (confirm('Alle klasgenoten uit de app verwijderen?')) {
+      if (confirm('Remove all classmates from the app?')) {
         await Store.clear(); await refreshRoster(); App.refreshCount();
       }
     });
