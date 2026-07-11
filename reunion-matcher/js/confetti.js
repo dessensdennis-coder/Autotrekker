@@ -2,7 +2,7 @@
 const Confetti = (() => {
   const canvas = document.getElementById('confetti');
   const ctx = canvas.getContext('2d');
-  const COLORS = ['#e0a422', '#8a3b1e', '#6f7a3a', '#2f6d6a', '#a8471f', '#f0c14b'];
+  const COLORS = ['#c8a648', '#1f2f52', '#a9af2f', '#2a3f6b', '#e0d27a', '#8f942a'];
   let parts = [];
   let raf = null;
 
