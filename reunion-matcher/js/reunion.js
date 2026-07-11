@@ -1,44 +1,22 @@
-/* Reünie-modus: camera -> gezicht -> top-3 klasgenoten met speels percentage. */
+/* Reunion mode: take/choose a photo -> face -> top-3 classmates with a
+   playful percentage. We use the phone's native camera (a file input with
+   capture) instead of a live getUserMedia preview — that works reliably on
+   both iPhone and Android, also as an installed app. */
 const Reunion = (() => {
   const els = {};
-  let stream = null;
   let people = [];
 
   const DET_W = 1000;
 
-  /* ---------- camera ---------- */
-  async function startCamera() {
-    stopCamera();
-    try {
-      stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: { ideal: 'environment' }, width: { ideal: 1280 } },
-        audio: false,
-      });
-      els.video.srcObject = stream;
-      await els.video.play();
-      els.camera.classList.remove('hidden');
-    } catch (e) {
-      // geen camera-toegang: dan werkt de galerij-knop nog altijd
-      console.warn('Camera niet beschikbaar', e);
-      els.camera.classList.add('hidden');
-    }
-  }
-  function stopCamera() {
-    if (stream) { stream.getTracks().forEach(t => t.stop()); stream = null; }
-    els.video.srcObject = null;
-  }
-
-  /* ---------- schermstaat ---------- */
+  /* ---------- screen state ---------- */
   async function onEnter() {
     people = await Store.all();
     resetResult();
     const has = people.length > 0;
     els.empty.classList.toggle('hidden', has);
     els.actions.classList.toggle('hidden', !has);
-    els.canvas.classList.add('hidden');
-    if (has) startCamera(); else els.camera.classList.add('hidden');
   }
-  function onLeave() { stopCamera(); }
+  function onLeave() { /* niets meer te stoppen */ }
 
   function resetResult() {
     els.result.classList.add('hidden');
@@ -46,7 +24,7 @@ const Reunion = (() => {
     els.again.classList.add('hidden');
   }
 
-  /* ---------- matchen ---------- */
+  /* ---------- matching ---------- */
   function distanceToScore(dist) {
     return Math.max(30, Math.min(99, Math.round(100 - (dist - 0.35) * 85)));
   }
@@ -129,34 +107,16 @@ const Reunion = (() => {
     els.result.classList.remove('hidden');
   }
 
-  /* ---------- capture ---------- */
-  function shoot() {
-    const v = els.video;
-    if (!v.videoWidth) { alert("Camera isn't ready yet."); return; }
-    const c = els.canvas;
-    c.width = v.videoWidth; c.height = v.videoHeight;
-    c.getContext('2d').drawImage(v, 0, 0);
-    stopCamera();
-    els.camera.classList.add('hidden');
-    els.actions.classList.add('hidden');
-    els.canvas.classList.remove('hidden');
-    matchFrom(c).catch(err => { console.error(err); hideBusy(); renderMessage('Something went wrong.'); });
-  }
-
+  /* ---------- input: neem foto (systeemcamera) of kies uit galerij ---------- */
   async function fromFile(file) {
-    stopCamera();
-    els.camera.classList.add('hidden');
     els.actions.classList.add('hidden');
-    // matchFrom zet de foto zelf rechtop (probeert 0/90/180/270°)
     const src = await Models.decodeImage(file);
     matchFrom(src).catch(err => { console.error(err); hideBusy(); renderMessage('Something went wrong.'); });
   }
 
   function again() {
     resetResult();
-    els.canvas.classList.add('hidden');
     els.actions.classList.remove('hidden');
-    startCamera();
   }
 
   /* ---------- busy overlay (hergebruikt result-gebied) ---------- */
@@ -172,19 +132,15 @@ const Reunion = (() => {
   }
 
   function init() {
-    els.video = document.getElementById('video');
-    els.camera = document.getElementById('reunion-camera');
-    els.canvas = document.getElementById('capture-canvas');
     els.actions = document.getElementById('reunion-actions');
     els.result = document.getElementById('reunion-result');
     els.empty = document.getElementById('reunion-empty');
     els.again = document.getElementById('btn-again');
 
-    document.getElementById('btn-shoot').addEventListener('click', shoot);
     document.getElementById('btn-again').addEventListener('click', again);
-    document.getElementById('reunion-file').addEventListener('change', e => {
-      if (e.target.files[0]) fromFile(e.target.files[0]);
-    });
+    const onPick = e => { const f = e.target.files[0]; if (f) fromFile(f); e.target.value = ''; };
+    document.getElementById('reunion-camera-file').addEventListener('change', onPick);
+    document.getElementById('reunion-file').addEventListener('change', onPick);
   }
 
   return { init, onEnter, onLeave };

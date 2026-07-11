@@ -1,5 +1,5 @@
 /* Service worker: alles offline beschikbaar maken (cache-first). */
-const CACHE = 'klas76-v6';
+const CACHE = 'klas76-v7';
 
 const ASSETS = [
   './',
