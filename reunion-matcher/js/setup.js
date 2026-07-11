@@ -125,14 +125,21 @@ const Setup = (() => {
   /* ---------- hoofdverwerking ---------- */
   async function processImage(file) {
     showProgress('Loading image…');
-    const work = await Models.fileToCanvas(file, MAX_W);
-
     await Models.load(showProgress);
     showProgress('Finding faces…');
+    const work = await Models.fileToUpright(file, MAX_W);
     let dets = await faceapi
       .detectAllFaces(work, Models.detectorOpts())
       .withFaceLandmarks()
       .withFaceDescriptors();
+
+    if (!dets.length) {
+      // terugval op het lichte model (helpt op oudere/zwakkere toestellen)
+      dets = await faceapi
+        .detectAllFaces(work, Models.tinyOpts())
+        .withFaceLandmarks()
+        .withFaceDescriptors();
+    }
 
     if (!dets.length) {
       hideProgress();

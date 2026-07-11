@@ -35,65 +35,54 @@ const Models = (() => {
   function load(onStatus) {
     if (ready) return ready;
     ready = (async () => {
-      onStatus && onStatus('Gezichtsmodel laden…');
+      onStatus && onStatus('Loading face model…');
       await ensureBackend();
       await faceapi.nets.ssdMobilenetv1.loadFromUri(MODEL_URL);
+      await faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL); // lichte terugval
       await faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL);
       await faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL);
     })();
     return ready;
   }
 
-  // Leest de EXIF-oriëntatie (1..8) uit een JPEG; 1 = geen rotatie.
-  function readOrientation(buf) {
-    const view = new DataView(buf);
-    if (view.byteLength < 2 || view.getUint16(0, false) !== 0xFFD8) return 1;
-    let off = 2;
-    while (off + 4 < view.byteLength) {
-      const marker = view.getUint16(off, false);
-      off += 2;
-      if (marker === 0xFFE1) {
-        if (view.getUint32(off + 2, false) !== 0x45786966) return 1;
-        const little = view.getUint16(off + 8, false) === 0x4949;
-        const tiff = off + 8;
-        const dir = tiff + view.getUint32(tiff + 4, little);
-        const n = view.getUint16(dir, little);
-        for (let i = 0; i < n; i++) {
-          const entry = dir + 2 + i * 12;
-          if (view.getUint16(entry, little) === 0x0112) {
-            return view.getUint16(entry + 8, little) || 1;
-          }
-        }
-        return 1;
-      } else if ((marker & 0xFF00) !== 0xFF00) {
-        break;
-      } else {
-        off += view.getUint16(off, false);
-      }
-    }
-    return 1;
+  // Tekent een bron in een canvas, gedraaid over 0/90/180/270°, geschaald op maxW.
+  function toCanvasRot(source, maxW, rot) {
+    const sw = source.videoWidth || source.naturalWidth || source.width;
+    const sh = source.videoHeight || source.naturalHeight || source.height;
+    const swap = rot === 90 || rot === 270;
+    const ow0 = swap ? sh : sw, oh0 = swap ? sw : sh;
+    const scale = maxW && ow0 > maxW ? maxW / ow0 : 1;
+    const ow = Math.round(ow0 * scale), oh = Math.round(oh0 * scale);
+    const sWt = Math.round(sw * scale), sHt = Math.round(sh * scale);
+    const c = document.createElement('canvas');
+    c.width = ow; c.height = oh;
+    const ctx = c.getContext('2d');
+    if (rot === 90) { ctx.translate(ow, 0); ctx.rotate(Math.PI / 2); }
+    else if (rot === 180) { ctx.translate(ow, oh); ctx.rotate(Math.PI); }
+    else if (rot === 270) { ctx.translate(0, oh); ctx.rotate(-Math.PI / 2); }
+    ctx.drawImage(source, 0, 0, sWt, sHt);
+    return c;
   }
 
-  // Tekent een afbeelding op een canvas met de juiste EXIF-rotatie toegepast.
-  function orientCanvas(img, o) {
-    const w = img.width, h = img.height;
-    const swap = o >= 5 && o <= 8;
-    const c = document.createElement('canvas');
-    c.width = swap ? h : w;
-    c.height = swap ? w : h;
-    const ctx = c.getContext('2d');
-    switch (o) {
-      case 2: ctx.translate(w, 0); ctx.scale(-1, 1); break;
-      case 3: ctx.translate(w, h); ctx.rotate(Math.PI); break;
-      case 4: ctx.translate(0, h); ctx.scale(1, -1); break;
-      case 5: ctx.rotate(-0.5 * Math.PI); ctx.translate(-w, 0); ctx.scale(-1, 1); break;
-      case 6: ctx.rotate(-0.5 * Math.PI); ctx.translate(-w, 0); break;
-      case 7: ctx.rotate(0.5 * Math.PI); ctx.translate(0, -h); ctx.scale(-1, 1); break;
-      case 8: ctx.rotate(0.5 * Math.PI); ctx.translate(0, -h); break;
-      default: break;
+  // Zet een bron rechtop zonder op de (onbetrouwbare) EXIF-vlag te vertrouwen:
+  // we proberen 0/90/180/270° en kiezen de stand waarin de meeste gezichten
+  // gevonden worden. Werkt op elk toestel, ongeacht hoe de browser de foto laadt.
+  async function uprightCanvas(source, maxW) {
+    let best = { rot: 0, n: -1, s: 0 };
+    for (const rot of [0, 90, 180, 270]) {
+      const probe = toCanvasRot(source, 480, rot);
+      let dets = [];
+      try { dets = await faceapi.detectAllFaces(probe, tinyOpts()); } catch (e) { /* negeer */ }
+      const n = dets.length;
+      const s = dets.reduce((a, d) => a + (d.score || 0), 0);
+      if (n > best.n || (n === best.n && s > best.s)) best = { rot, n, s };
     }
-    ctx.drawImage(img, 0, 0);
-    return c;
+    return toCanvasRot(source, maxW, best.rot);
+  }
+
+  async function fileToUpright(file, maxW) {
+    const src = await decodeImage(file);
+    return uprightCanvas(src, maxW);
   }
 
   function loadImageEl(file) {
@@ -105,28 +94,14 @@ const Models = (() => {
     });
   }
 
-  // Laadt een bestand/blob, past EXIF-rotatie toe en schaalt naar maxW.
-  //
-  // Belangrijk: sommige browsers (o.a. Chrome op Android) draaien een foto bij
-  // het inladen zélf al recht volgens de EXIF-vlag. Als wíj daar dan nóg eens
-  // overheen draaien, staat het beeld scheef/ondersteboven en mislukt de
-  // naam-herkenning. Daarom vragen we met createImageBitmap({imageOrientation:
-  // 'none'}) expliciet de RUWE pixels op, zodat onze eigen rotatie de enige is
-  // en het resultaat op elk toestel hetzelfde is.
-  async function fileToCanvas(file, maxW) {
-    const buf = await file.arrayBuffer();
-    const o = readOrientation(buf);
+  async function decodeImage(file) {
     if (typeof createImageBitmap === 'function') {
-      try {
-        const bmp = await createImageBitmap(file, { imageOrientation: 'none' });
-        const oriented = o === 1 ? bmp : orientCanvas(bmp, o);
-        return toCanvas(oriented, maxW);
-      } catch (e) { /* val terug op <img> hieronder */ }
+      try { return await createImageBitmap(file, { imageOrientation: 'none' }); }
+      catch (e) {
+        try { return await createImageBitmap(file); } catch (e2) { /* val terug op <img> */ }
+      }
     }
-    // Fallback voor oude browsers zonder die optie: laat de browser de EXIF
-    // zelf doen en roteer NIET nog eens (voorkomt dubbele rotatie).
-    const img = await loadImageEl(file);
-    return toCanvas(img, maxW);
+    return loadImageEl(file);
   }
 
   // Tekent een bron (img/canvas/video) op een canvas met een maximale breedte,
@@ -157,7 +132,10 @@ const Models = (() => {
     return out.toDataURL('image/jpeg', 0.82);
   }
 
-  const detectorOpts = () => new faceapi.SsdMobilenetv1Options({ minConfidence: 0.35 });
+  const detectorOpts = () => new faceapi.SsdMobilenetv1Options({ minConfidence: 0.3 });
+  // Lichte detector als terugval op zwakke/oudere toestellen.
+  const tinyOpts = () => new faceapi.TinyFaceDetectorOptions({ inputSize: 512, scoreThreshold: 0.3 });
 
-  return { load, toCanvas, fileToCanvas, cropFace, detectorOpts };
+  return { load, toCanvas, toCanvasRot, uprightCanvas, fileToUpright, decodeImage,
+           cropFace, detectorOpts, tinyOpts };
 })();

@@ -61,10 +61,18 @@ const Reunion = (() => {
     resetResult();
     showBusy('Looking at the face…');
     await Models.load(showBusy);
-    const det = await faceapi
-      .detectSingleFace(Models.toCanvas(source, DET_W), Models.detectorOpts())
+    const cnv = await Models.uprightCanvas(source, DET_W);
+    let det = await faceapi
+      .detectSingleFace(cnv, Models.detectorOpts())
       .withFaceLandmarks()
       .withFaceDescriptor();
+    if (!det) {
+      // terugval op het lichte model (helpt op oudere/zwakkere toestellen)
+      det = await faceapi
+        .detectSingleFace(cnv, Models.tinyOpts())
+        .withFaceLandmarks()
+        .withFaceDescriptor();
+    }
     hideBusy();
 
     if (!det) {
@@ -79,20 +87,14 @@ const Reunion = (() => {
     })).sort((a, b) => a.dist - b.dist);
 
     const top = scored.slice(0, 3);
-    renderResults(top, source, det.detection.box);
+    renderResults(top, cnv, det.detection.box);
     if (top[0].dist < 0.55) Confetti.burst();
   }
 
   /* ---------- rendering ---------- */
-  function faceThumbFromSource(source, box, canvasW) {
-    // box is in DET_W-coördinaten; herbereken naar de bronresolutie
-    const c = Models.toCanvas(source, DET_W);
-    return Models.cropFace(c, box);
-  }
-
-  function renderResults(top, source, box) {
+  function renderResults(top, cnv, box) {
     els.result.innerHTML = '';
-    const captured = faceThumbFromSource(source, box);
+    const captured = Models.cropFace(cnv, box);
     const head = document.createElement('div');
     head.innerHTML = `<img class="captured-face" src="${captured}" alt="your photo">
       <p class="result-caption">Most likely from the yearbook:</p>`;
@@ -145,9 +147,9 @@ const Reunion = (() => {
     stopCamera();
     els.camera.classList.add('hidden');
     els.actions.classList.add('hidden');
-    // EXIF-correct inlezen; matchFrom werkt met een canvas net zo goed als met een img
-    const work = await Models.fileToCanvas(file, DET_W);
-    matchFrom(work).catch(err => { console.error(err); hideBusy(); renderMessage('Something went wrong.'); });
+    // matchFrom zet de foto zelf rechtop (probeert 0/90/180/270°)
+    const src = await Models.decodeImage(file);
+    matchFrom(src).catch(err => { console.error(err); hideBusy(); renderMessage('Something went wrong.'); });
   }
 
   function again() {

@@ -1,5 +1,5 @@
 /* Service worker: alles offline beschikbaar maken (cache-first). */
-const CACHE = 'klas76-v4';
+const CACHE = 'klas76-v5';
 
 const ASSETS = [
   './',
@@ -34,6 +34,8 @@ const ASSETS = [
   'vendor/models/face_landmark_68_model.bin',
   'vendor/models/face_recognition_model-weights_manifest.json',
   'vendor/models/face_recognition_model.bin',
+  'vendor/models/tiny_face_detector_model-weights_manifest.json',
+  'vendor/models/tiny_face_detector_model.bin',
 ];
 
 self.addEventListener('install', e => {
