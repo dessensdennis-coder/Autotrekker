@@ -93,6 +93,12 @@
           <h2>In the app <span id="roster-count" class="pill">0</span></h2>
           <button class="btn btn-tiny btn-danger-ghost hidden" id="btn-clear-all">Clear all</button>
         </div>
+        <div class="backup-bar">
+          <button class="btn btn-soft btn-tiny" id="btn-backup">⬇︎ Back up</button>
+          <label class="btn btn-soft btn-tiny" for="restore-file">⬆︎ Restore</label>
+          <input type="file" id="restore-file" accept="application/json,.json" hidden />
+          <span class="backup-hint">Save a copy so you never lose your classmates.</span>
+        </div>
         <div id="roster-grid" class="roster-grid"></div>
       </div>
     </section>
@@ -122,6 +128,12 @@
           top&nbsp;3 — the right one is often in there.</p>
         <p class="muted">Tip: the sharper and more head-on the photo, the better
           the guess.</p>
+        <h3>Back up your classmates 💾</h3>
+        <p>Everything is stored on this phone only. Before you travel, tap
+          <b>Back up</b> on the <b>Set&nbsp;up</b> screen to save a copy (to your
+          email, Files, or cloud). If anything ever goes wrong — phone wiped, app
+          reinstalled, even a different phone — tap <b>Restore</b> and pick that
+          file to get everyone back. No yearbook or internet needed.</p>
       </div>
     </section>
   </main>
@@ -149,6 +161,7 @@
   <script src="js/confetti.js"></script>
   <script src="js/setup.js"></script>
   <script src="js/reunion.js"></script>
+  <script src="js/backup.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>

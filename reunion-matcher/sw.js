@@ -1,5 +1,5 @@
 /* Service worker: alles offline beschikbaar maken (cache-first). */
-const CACHE = 'klas76-v5';
+const CACHE = 'klas76-v6';
 
 const ASSETS = [
   './',
@@ -10,6 +10,7 @@ const ASSETS = [
   'js/confetti.js',
   'js/setup.js',
   'js/reunion.js',
+  'js/backup.js',
   'js/app.js',
   'manifest.webmanifest',
   'icons/icon-192.png',

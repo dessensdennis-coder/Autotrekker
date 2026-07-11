@@ -24,6 +24,7 @@ const App = (() => {
   function init() {
     Setup.init();
     Reunion.init();
+    Backup.init();
     document.querySelectorAll('.tab').forEach(t =>
       t.addEventListener('click', () => show(t.dataset.screen)));
     refreshCount();
