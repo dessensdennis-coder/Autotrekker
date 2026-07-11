@@ -28,21 +28,50 @@ body{
 }
 h1,h2,h3{font-family:Georgia,"Times New Roman",serif;letter-spacing:.2px}
 
+/* ---------- gold + stripes (CREST-cover motieven) ---------- */
+/* metallic-goud verloop, hergebruikt voor badge en knoppen */
+:root{
+  --gold-grad:linear-gradient(145deg,#f6e6a6 0%,#d8b45c 42%,#b98f34 62%,#e6c86e 100%);
+}
+/* gestreepte gouden letters, zoals de op-art titel op de cover */
+.wordmark{
+  font-family:Georgia,"Times New Roman",serif;
+  font-size:1.32rem;font-weight:800;letter-spacing:.6px;line-height:1;
+  color:transparent;-webkit-text-fill-color:transparent;
+  background-image:repeating-linear-gradient(0deg,
+     #f8eab0 0,#f8eab0 2px, #b98f31 2px,#b98f31 3.6px,
+     rgba(0,0,0,0) 3.6px,rgba(0,0,0,0) 4.6px);
+  -webkit-background-clip:text;background-clip:text;
+  filter:drop-shadow(0 1px 0 rgba(0,0,0,.35));
+}
+/* streepjes-scheiding onder koppen */
+.stripes{
+  height:12px;width:104px;margin:2px 0 12px;border-radius:3px;
+  background:repeating-linear-gradient(0deg,
+     #d8b45c 0,#d8b45c 2px, rgba(0,0,0,0) 2px,rgba(0,0,0,0) 3px,
+     var(--rust) 3px,var(--rust) 5px, rgba(0,0,0,0) 5px,rgba(0,0,0,0) 6px);
+}
+
 /* ---------- top bar ---------- */
 .topbar{
   position:sticky;top:0;z-index:20;
   display:flex;align-items:center;justify-content:space-between;
-  padding:calc(10px + env(safe-area-inset-top)) 16px 10px;
+  padding:calc(10px + env(safe-area-inset-top)) 16px 12px;
   background:linear-gradient(180deg,var(--rust),var(--rust-2));
   color:#fff7ec;box-shadow:var(--shadow);
+}
+.topbar::after{               /* gouden accentrand onderaan de balk */
+  content:"";position:absolute;left:0;right:0;bottom:0;height:3px;
+  background:linear-gradient(90deg,#7c5f1c,#f2dd90,#c8a648,#f2dd90,#7c5f1c);
 }
 .brand{display:flex;align-items:center;gap:12px}
 .brand-badge{
   display:grid;place-items:center;width:44px;height:44px;border-radius:50%;
-  background:var(--mustard);color:#1b2542;font-weight:800;font-family:Georgia,serif;
-  font-size:1.05rem;box-shadow:inset 0 0 0 3px rgba(255,255,255,.35);
+  background:var(--gold-grad);color:#1b2542;font-weight:800;font-family:Georgia,serif;
+  font-size:1.05rem;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.65),inset 0 -2px 4px rgba(120,90,20,.5),0 2px 6px rgba(0,0,0,.35);
 }
-.brand-text{display:flex;flex-direction:column;line-height:1.1}
+.brand-text{display:flex;flex-direction:column;line-height:1.15;gap:1px}
 .brand-text strong{font-size:1.12rem;font-family:Georgia,serif}
 .brand-text small{opacity:.85;font-size:.72rem;letter-spacing:.4px;text-transform:uppercase}
 .brand-count{
@@ -68,8 +97,12 @@ h1,h2,h3{font-family:Georgia,"Times New Roman",serif;letter-spacing:.2px}
   font-family:inherit;
 }
 .btn:active{transform:scale(.96)}
-.btn-primary{background:linear-gradient(180deg,var(--mustard),#cf9012);color:#16203a;box-shadow:var(--shadow)}
-.btn-primary:hover{background:linear-gradient(180deg,#eeb02c,#d8981a)}
+.btn-primary{
+  background:linear-gradient(180deg,#f6e6a6 0%,#dcb85c 42%,#c39a3e 58%,#dcb85c 100%);
+  color:#16203a;
+  box-shadow:var(--shadow),inset 0 1px 0 rgba(255,255,255,.6),inset 0 -2px 4px rgba(120,90,20,.35);
+}
+.btn-primary:hover{filter:brightness(1.05)}
 .btn-xl{font-size:1.2rem;padding:1em 1.8em}
 .btn-ghost{background:transparent;color:var(--rust);border:2px solid transparent}
 .btn-ghost:hover{background:rgba(31,47,82,.08)}

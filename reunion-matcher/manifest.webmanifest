@@ -1,14 +1,14 @@
 {
-  "name": "CREST '76 — Wie is wie?",
+  "name": "CREST '76 — Who's Who?",
   "short_name": "CREST '76",
-  "description": "Herken oud-klasgenoten uit het jaarboek CREST '76 op de reünie.",
+  "description": "Recognize old classmates from the CREST '76 yearbook at the reunion.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#ece3c8",
   "theme_color": "#1f2f52",
-  "lang": "nl",
+  "lang": "en",
   "icons": [
     { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
     { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png" },

@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="nl">
+<html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <meta name="theme-color" content="#1f2f52" />
-  <title>CREST '76 — Wie is wie?</title>
+  <title>CREST '76 — Who's Who?</title>
   <link rel="manifest" href="manifest.webmanifest" />
   <link rel="icon" href="icons/icon-192.png" />
   <link rel="apple-touch-icon" href="icons/icon-192.png" />
@@ -16,11 +16,11 @@
     <div class="brand">
       <span class="brand-badge">'76</span>
       <div class="brand-text">
-        <strong>CREST&nbsp;'76</strong>
-        <small>John High School · Reünie</small>
+        <strong class="wordmark">CREST&nbsp;'76</strong>
+        <small>John High School · Reunion</small>
       </div>
     </div>
-    <div class="brand-count" id="peopleCount" title="Klasgenoten in de app">—</div>
+    <div class="brand-count" id="peopleCount" title="Classmates in the app">—</div>
   </header>
 
   <!-- ============ SCREENS ============ -->
@@ -29,14 +29,15 @@
     <!-- ---- REUNION ---- -->
     <section class="screen is-active" id="screen-reunion">
       <div class="hero">
-        <h1>Wie is dit?</h1>
-        <p class="lead">Maak een foto van iemand op de reünie en de app raadt
-          wie het was in het jaarboek.</p>
+        <h1>Who's this?</h1>
+        <div class="stripes" aria-hidden="true"></div>
+        <p class="lead">Snap a photo of someone at the reunion and the app
+          guesses who they were in the yearbook.</p>
       </div>
 
       <div id="reunion-empty" class="empty-note hidden">
-        <p>📖 Er zitten nog geen klasgenoten in de app.</p>
-        <p>Ga eerst naar <b>Instellen</b> en laad je jaarboekpagina's in.</p>
+        <p>📖 No classmates in the app yet.</p>
+        <p>Head to <b>Set&nbsp;up</b> and load your yearbook pages first.</p>
       </div>
 
       <div id="reunion-camera" class="camera-wrap hidden">
@@ -47,49 +48,50 @@
       <canvas id="capture-canvas" class="hidden"></canvas>
 
       <div id="reunion-actions" class="actions hidden">
-        <button class="btn btn-primary btn-xl" id="btn-shoot">📸 Maak foto</button>
-        <label class="btn btn-ghost" for="reunion-file">of kies uit galerij</label>
+        <button class="btn btn-primary btn-xl" id="btn-shoot">📸 Take photo</button>
+        <label class="btn btn-ghost" for="reunion-file">or pick from your photos</label>
         <input type="file" id="reunion-file" accept="image/*" capture="environment" hidden />
       </div>
 
       <div id="reunion-result" class="result hidden"></div>
-      <button class="btn btn-ghost hidden" id="btn-again">↺ Nog iemand</button>
+      <button class="btn btn-ghost hidden" id="btn-again">↺ Someone else</button>
     </section>
 
     <!-- ---- SETUP ---- -->
     <section class="screen" id="screen-setup">
       <div class="hero">
-        <h1>Instellen</h1>
-        <p class="lead">Laad je jaarboekpagina's in. De app knipt de gezichten
-          uit en leest de namen. Jij checkt ze even.</p>
+        <h1>Set up</h1>
+        <div class="stripes" aria-hidden="true"></div>
+        <p class="lead">Load your yearbook pages. The app crops the faces and
+          reads the names — you just check them.</p>
       </div>
 
       <label class="dropzone" for="setup-file" id="dropzone">
         <span class="dz-icon">🖼️</span>
-        <span class="dz-title">Kies een jaarboekpagina</span>
-        <span class="dz-sub">een foto van een pagina of dubbele pagina</span>
+        <span class="dz-title">Pick a yearbook page</span>
+        <span class="dz-sub">a photo of one page or a two-page spread</span>
         <input type="file" id="setup-file" accept="image/*" hidden />
       </label>
 
       <div id="setup-progress" class="progress hidden">
         <div class="spinner"></div>
-        <span id="setup-progress-text">Bezig…</span>
+        <span id="setup-progress-text">Working…</span>
       </div>
 
       <div id="setup-review" class="review hidden">
-        <p class="review-help">Controleer de namen en vink weg wat geen
-          klasgenoot is. Daarna opslaan.</p>
+        <p class="review-help">Check the names and uncheck anyone who isn't a
+          classmate. Then save.</p>
         <div id="review-grid" class="review-grid"></div>
         <div class="actions">
-          <button class="btn btn-primary" id="btn-save-people">✅ Opslaan</button>
-          <button class="btn btn-ghost" id="btn-cancel-review">Annuleren</button>
+          <button class="btn btn-primary" id="btn-save-people">✅ Save</button>
+          <button class="btn btn-ghost" id="btn-cancel-review">Cancel</button>
         </div>
       </div>
 
       <div class="roster">
         <div class="roster-head">
-          <h2>In de app <span id="roster-count" class="pill">0</span></h2>
-          <button class="btn btn-tiny btn-danger-ghost hidden" id="btn-clear-all">Alles wissen</button>
+          <h2>In the app <span id="roster-count" class="pill">0</span></h2>
+          <button class="btn btn-tiny btn-danger-ghost hidden" id="btn-clear-all">Clear all</button>
         </div>
         <div id="roster-grid" class="roster-grid"></div>
       </div>
@@ -98,27 +100,28 @@
     <!-- ---- ABOUT ---- -->
     <section class="screen" id="screen-about">
       <div class="hero">
-        <h1>Over deze app</h1>
+        <h1>About this app</h1>
+        <div class="stripes" aria-hidden="true"></div>
       </div>
       <div class="prose">
-        <p>Een klein feestje-hulpje bij het jaarboek <b>CREST&nbsp;'76</b>
-          (John High School). Alles draait <b>op je eigen telefoon</b> — er gaat
-          geen enkele foto het internet op.</p>
+        <p>A little party helper for the <b>CREST&nbsp;'76</b> yearbook
+          (John High School). Everything runs <b>on your own phone</b> — no
+          photo ever leaves your device.</p>
         <p class="muted">🎵 <i>"I'd like to teach the world to sing…"</i></p>
-        <h3>Zo werkt het</h3>
+        <h3>How it works</h3>
         <ol>
-          <li><b>Instellen</b> — laad je jaarboekpagina's in. De app herkent de
-            gezichten en leest de namen eronder. Je checkt ze even en slaat op.</li>
-          <li><b>Reünie</b> — richt op iemand, maak een foto, en de app toont de
-            drie meest waarschijnlijke klasgenoten met een percentage.</li>
+          <li><b>Set up</b> — load your yearbook pages. The app finds the faces
+            and reads the names beneath them. You check them and save.</li>
+          <li><b>Reunion</b> — point at someone, take a photo, and the app shows
+            the three most likely classmates with a percentage.</li>
         </ol>
-        <h3>Eerlijk over de gok 🎲</h3>
-        <p>Een foto van nu vergelijken met een korrelige zwart-witfoto van
-          bijna vijftig jaar geleden is best lastig. Zie het percentage dus als
-          een <b>speelse hint</b>, niet als de waarheid. Daarom toont de app
-          altijd de top&nbsp;3 — vaak zit de juiste ertussen.</p>
-        <p class="muted">Tip: hoe scherper en recht-van-voren de foto, hoe beter
-          de gok.</p>
+        <h3>Honest about the guess 🎲</h3>
+        <p>Comparing a photo from today with a grainy black-and-white shot from
+          nearly fifty years ago is genuinely hard. So treat the percentage as a
+          <b>playful hint</b>, not the truth. That's why the app always shows the
+          top&nbsp;3 — the right one is often in there.</p>
+        <p class="muted">Tip: the sharper and more head-on the photo, the better
+          the guess.</p>
       </div>
     </section>
   </main>
@@ -126,13 +129,13 @@
   <!-- ============ TABBAR ============ -->
   <nav class="tabbar">
     <button class="tab is-active" data-screen="reunion">
-      <span class="tab-ico">📸</span><span>Reünie</span>
+      <span class="tab-ico">📸</span><span>Reunion</span>
     </button>
     <button class="tab" data-screen="setup">
-      <span class="tab-ico">⚙️</span><span>Instellen</span>
+      <span class="tab-ico">⚙️</span><span>Set up</span>
     </button>
     <button class="tab" data-screen="about">
-      <span class="tab-ico">ℹ️</span><span>Over</span>
+      <span class="tab-ico">ℹ️</span><span>About</span>
     </button>
   </nav>
 
